@@ -9,8 +9,8 @@ export const loginLimiter = rateLimit({
 });
 
 export const voteLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minute
-  max: 50, // limit each IP to 50 votes per minute
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // limit each IP to 10 votes per minute
   message: 'Too many votes, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
@@ -18,7 +18,7 @@ export const voteLimiter = rateLimit({
 });
 
 export const apiLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000,
-  max: 200,
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again later',
 });

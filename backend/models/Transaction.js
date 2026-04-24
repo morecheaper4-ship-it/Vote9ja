@@ -16,37 +16,36 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    currency: {
-      type: String,
-      default: 'NGN',
+    coinsAmount: {
+      type: Number,
     },
-    description: String,
     status: {
       type: String,
       enum: ['pending', 'completed', 'failed'],
       default: 'pending',
     },
-    paymentReference: {
-      paystackReference: String,
-      orderId: String,
+    paymentMethod: {
+      type: String,
+      enum: ['paystack', 'wallet'],
     },
-    metadata: {
-      contestId: mongoose.Schema.Types.ObjectId,
-      entryId: mongoose.Schema.Types.ObjectId,
-      referredUserId: mongoose.Schema.Types.ObjectId,
+    reference: String,
+    paystackReference: String,
+    paystackAmount: Number,
+    description: String,
+    relatedTo: {
+      type: String,
+      enum: ['contest', 'vote', 'referral'],
     },
-    relatedTransaction: {
+    contestId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Transaction',
+      ref: 'Contest',
     },
+    metadata: mongoose.Schema.Types.Mixed,
+    verifiedAt: Date,
   },
   {
     timestamps: true,
   }
 );
-
-transactionSchema.index({ user: 1, createdAt: -1 });
-transactionSchema.index({ type: 1 });
-transactionSchema.index({ 'paymentReference.paystackReference': 1 });
 
 export default mongoose.model('Transaction', transactionSchema);

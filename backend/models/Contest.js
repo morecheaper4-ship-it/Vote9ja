@@ -6,18 +6,17 @@ const contestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: String,
+    description: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
     category: {
       type: String,
-      enum: ['music', 'dance', 'comedy', 'arts', 'sports', 'other'],
+      enum: ['music', 'talent', 'photography', 'video', 'art', 'other'],
       default: 'other',
-    },
-    coverImage: String,
-    rules: String,
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
     },
     startDate: {
       type: Date,
@@ -27,60 +26,48 @@ const contestSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    status: {
-      type: String,
-      enum: ['draft', 'active', 'ended', 'cancelled'],
-      default: 'draft',
+    prizes: {
+      first: {
+        type: Number,
+        default: 100000,
+      },
+      second: {
+        type: Number,
+        default: 50000,
+      },
+      third: {
+        type: Number,
+        default: 30000,
+      },
     },
     entryFee: {
       type: Number,
       default: 0,
     },
-    prizes: {
-      first: {
-        type: Number,
-        required: true,
-      },
-      second: {
-        type: Number,
-        required: true,
-      },
-      third: {
-        type: Number,
-        required: true,
-      },
+    status: {
+      type: String,
+      enum: ['draft', 'active', 'ended', 'archived'],
+      default: 'draft',
     },
     votingConfig: {
       coinsPerVote: {
         type: Number,
         default: 1,
       },
-      allowRevote: {
-        type: Boolean,
-        default: false,
+      maxVotesPerUser: {
+        type: Number,
       },
     },
-    entries: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Entry',
-      },
-    ],
-    entryCount: {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    entries: {
       type: Number,
       default: 0,
     },
     totalVotes: {
-      type: Number,
-      default: 0,
-    },
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-    participantCount: {
       type: Number,
       default: 0,
     },
@@ -92,14 +79,23 @@ const contestSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    winners: [
+      {
+        entry: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Entry',
+        },
+        position: {
+          type: Number,
+          enum: [1, 2, 3],
+        },
+        prizeAmount: Number,
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
-
-contestSchema.index({ status: 1, endDate: -1 });
-contestSchema.index({ startDate: 1 });
-contestSchema.index({ isFeatured: 1 });
 
 export default mongoose.model('Contest', contestSchema);

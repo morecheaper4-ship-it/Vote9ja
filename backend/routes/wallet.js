@@ -48,8 +48,8 @@ router.post(
     }
 
     // Add coins
-    user.wallet.coins += 5;
-    user.wallet.totalEarned += 5;
+    user.wallet.coins += 10;
+    user.wallet.totalEarned += 10;
     user.dailyRewardClaimed = new Date();
     await user.save();
 
@@ -57,8 +57,8 @@ router.post(
     await Transaction.create({
       user: req.user._id,
       type: 'reward',
-      amount: 5,
-      coinsAmount: 5,
+      amount: 10,
+      coinsAmount: 10,
       status: 'completed',
       paymentMethod: 'wallet',
       description: 'Daily login reward',

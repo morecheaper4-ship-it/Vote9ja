@@ -7,25 +7,20 @@ const feedSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    type: {
+    title: {
       type: String,
-      enum: ['announcement', 'update', 'highlight', 'user_post'],
-      default: 'user_post',
     },
-    title: String,
     content: {
       type: String,
       required: true,
     },
-    image: String,
-    video: String,
-    relatedContest: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Contest',
+    image: {
+      type: String,
     },
-    relatedEntry: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Entry',
+    postType: {
+      type: String,
+      enum: ['announcement', 'update', 'highlight', 'general'],
+      default: 'general',
     },
     likes: [
       {
@@ -51,7 +46,6 @@ const feedSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    tags: [String],
     isPinned: {
       type: Boolean,
       default: false,
@@ -61,15 +55,14 @@ const feedSchema = new mongoose.Schema(
       enum: ['public', 'private'],
       default: 'public',
     },
+    relatedContest: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Contest',
+    },
   },
   {
     timestamps: true,
   }
 );
-
-feedSchema.index({ createdAt: -1 });
-feedSchema.index({ author: 1 });
-feedSchema.index({ type: 1 });
-feedSchema.index({ isPinned: -1, createdAt: -1 });
 
 export default mongoose.model('Feed', feedSchema);

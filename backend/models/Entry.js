@@ -16,49 +16,60 @@ const entrySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: String,
+    description: {
+      type: String,
+    },
+    bio: {
+      type: String,
+    },
+    media: [
+      {
+        type: String,
+        url: String,
+      },
+    ],
+    mediaUrl: {
+      type: String,
+    },
     mediaType: {
       type: String,
       enum: ['image', 'video'],
       required: true,
     },
-    mediaUrl: {
-      type: String,
-      required: true,
-    },
-    thumbnail: String,
-    bio: String,
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
+    approvedAt: Date,
     rejectionReason: String,
-    votes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vote',
-      },
-    ],
-    voteCount: {
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    votes: {
       type: Number,
       default: 0,
     },
+    voters: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     rank: Number,
-    entryFeePaymentId: String,
-    isWinner: {
+    entryFee: {
+      type: Number,
+      default: 0,
+    },
+    isDisqualified: {
       type: Boolean,
       default: false,
     },
-    prizeAwarded: Number,
   },
   {
     timestamps: true,
   }
 );
-
-entrySchema.index({ contest: 1, status: 1 });
-entrySchema.index({ contestant: 1 });
-entrySchema.index({ voteCount: -1 });
 
 export default mongoose.model('Entry', entrySchema);

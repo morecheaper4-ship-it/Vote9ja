@@ -1,12 +1,15 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    username: {
+    firstName: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
     },
     email: {
       type: String,
@@ -17,6 +20,16 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      minlength: 6,
+    },
+    phone: {
+      type: String,
+    },
+    profileImage: {
+      type: String,
+    },
+    bio: {
+      type: String,
     },
     role: {
       type: String,
@@ -37,32 +50,22 @@ const userSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    profile: {
-      avatar: String,
-      bio: String,
-      phone: String,
-      location: String,
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
-    referral: {
-      code: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
-      referredBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-      referrals: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      ],
-      totalEarned: {
-        type: Number,
-        default: 0,
-      },
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    referralCount: {
+      type: Number,
+      default: 0,
+    },
+    referralEarnings: {
+      type: Number,
+      default: 0,
     },
     votingStreak: {
       current: {
@@ -73,28 +76,14 @@ const userSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
-      lastVoteDate: Date,
-      streakRewardsClaimed: [Date],
-    },
-    dailyRewards: {
-      lastClaimedDate: Date,
-      claimedCount: {
-        type: Number,
-        default: 0,
+      lastVoteDate: {
+        type: Date,
       },
     },
     achievements: [
       {
-        badgeId: String,
-        name: String,
+        badge: String,
         unlockedAt: Date,
-      },
-    ],
-    deviceFingerprints: [
-      {
-        fingerprint: String,
-        ipAddress: String,
-        lastSeen: Date,
       },
     ],
     followers: [
@@ -109,19 +98,20 @@ const userSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
-    notificationPreferences: {
-      emailNotifications: {
-        type: Boolean,
-        default: true,
+    deviceFingerprints: [
+      {
+        fingerprint: String,
+        userAgent: String,
+        lastSeen: Date,
       },
-      pushNotifications: {
-        type: Boolean,
-        default: true,
-      },
-      contestReminders: {
-        type: Boolean,
-        default: true,
-      },
+    ],
+    lastLogin: Date,
+    dailyRewardClaimed: {
+      type: Date,
+    },
+    totalVotes: {
+      type: Number,
+      default: 0,
     },
     isActive: {
       type: Boolean,
@@ -131,19 +121,32 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    verificationToken: String,
-    verificationTokenExpires: Date,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
   },
   {
     timestamps: true,
   }
 );
 
-// Index for faster queries
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-userSchema.index({ 'referral.code': 1 });
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Method to compare password
+userSchema.methods.matchPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+// Method to generate referral code
+userSchema.methods.generateReferralCode = function () {
+  return `REF_${this._id.toString().slice(0, 8).toUpperCase()}_${Date.now()}`;
+};
 
 export default mongoose.model('User', userSchema);

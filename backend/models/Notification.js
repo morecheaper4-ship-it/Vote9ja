@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema(
   {
-    recipient: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -10,39 +10,30 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
-        'contest_starting',
-        'contest_ending',
+        'contest_update',
+        'vote_received',
         'entry_approved',
         'entry_rejected',
-        'new_vote',
-        'daily_reward',
-        'referral_bonus',
-        'streak_reward',
+        'contest_ending',
         'achievement_unlocked',
-        'comment_on_post',
+        'referral_bonus',
+        'new_comment',
         'post_liked',
+        'contest_result',
+        'daily_reward_available',
       ],
       required: true,
     },
-    title: String,
+    title: {
+      type: String,
+      required: true,
+    },
     message: {
       type: String,
       required: true,
     },
-    relatedContest: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Contest',
-    },
-    relatedEntry: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Entry',
-    },
-    relatedFeed: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Feed',
-    },
-    actionUrl: String,
-    isRead: {
+    data: mongoose.Schema.Types.Mixed,
+    read: {
       type: Boolean,
       default: false,
     },
@@ -54,25 +45,17 @@ const notificationSchema = new mongoose.Schema(
       },
       email: {
         type: Boolean,
-        default: true,
+        default: false,
       },
       push: {
         type: Boolean,
-        default: true,
+        default: false,
       },
-    },
-    sentAt: {
-      inApp: Date,
-      email: Date,
-      push: Date,
     },
   },
   {
     timestamps: true,
   }
 );
-
-notificationSchema.index({ recipient: 1, createdAt: -1 });
-notificationSchema.index({ recipient: 1, isRead: 1 });
 
 export default mongoose.model('Notification', notificationSchema);
